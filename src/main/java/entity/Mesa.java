@@ -7,7 +7,12 @@ import jakarta.persistence.Id;
 
 @Entity
 public class Mesa {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+
+    private String mesa1;
+
+    private String mesa2;
+
+    private String mesa3;
+
+    private String mesa4;
 }
