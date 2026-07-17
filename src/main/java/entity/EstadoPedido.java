@@ -1,4 +1,11 @@
 package entity;
 
-public class EstadoPedido {
+public enum EstadoPedido {
+
+    PENDIENTE,
+    EN_PREPARACION,
+    LISTO,
+    ENTREGADO,
+    PAGADO,
+    CANCELADO
 }

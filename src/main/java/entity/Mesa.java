@@ -1,18 +1,18 @@
 package entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 @Entity
-public class Mesa {
+@Table(name = "mesas")
+public class Mesa extends BaseEntity {
 
-    private String mesa1;
+    private Integer numero;
 
-    private String mesa2;
+    private Integer capacidad;
 
-    private String mesa3;
+    @Enumerated(EnumType.STRING)
+    private EstadoMesa estado;
 
-    private String mesa4;
+    @OneToMany(mappedBy = "mesa")
+    private List<Pedido> pedidos;
 }

@@ -1,15 +1,27 @@
 package entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+
+import java.util.List;
 
 @Entity
-public class Usuario {
+@Table(name = "usuarios")
+public class Usuario extends BaseEntity {
 
-    @Id
-    @GeneratedValue
-    private int id;
+    private String nombres;
 
-    private String nombre;
+    private String apellidos;
+
+    private String correo;
+
+    private String password;
+
+    private Boolean activo;
+
+    @ManyToOne
+    @JoinColumn(name = "rol_id")
+    private Rol rol;
+
+    @OneToMany(mappedBy = "mesero")
+    private List<Pedido> pedidos;
 }
