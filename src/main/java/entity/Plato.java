@@ -1,12 +1,20 @@
 package entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.util.List;
 
 @Entity
 @Table(name = "platos")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Plato extends BaseEntity {
 
     private String nombre;

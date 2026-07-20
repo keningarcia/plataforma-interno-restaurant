@@ -1,107 +1,115 @@
 package service.impl;
 
+import dto.request.UsuarioRequest;
+import dto.response.UsuarioResponse;
+import entity.Rol;
+import entity.Usuario;
+import exception.BusinessException;
+import exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import repository.*;
-import service.PedidoService;
+import repository.RolRepository;
+import repository.UsuarioRepository;
+import service.UsuarioService;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 @Transactional
-public class PedidoServiceImpl implements PedidoService {
-
-    private final PedidoRepository pedidoRepository;
-
-    private final MesaRepository mesaRepository;
-
-    private final PlatoRepository platoRepository;
+public class UsuarioServiceImpl implements UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
-
-    private final DetallePedidoRepository detalleRepository;
-
-    private final PedidoMapper pedidoMapper;
+    private final RolRepository rolRepository;
 
     @Override
-    public PedidoResponse crearPedido(PedidoRequest request) {
-        return null;
+    @Transactional(readOnly = true)
+    public List<UsuarioResponse> listar() {
+        return usuarioRepository.findAll()
+                .stream()
+                .map(this::toResponse)
+                .toList();
     }
 
     @Override
-    public PedidoResponse obtenerPorId(Long id) {
-        return null;
+    @Transactional(readOnly = true)
+    public UsuarioResponse obtenerPorId(Long id) {
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado", id));
+        return toResponse(usuario);
     }
 
     @Override
-    public List<PedidoResponse> listar() {
-        return null;
+    public UsuarioResponse crear(UsuarioRequest request) {
+        if (usuarioRepository.existsByCorreo(request.getCorreo())) {
+            throw new BusinessException("Ya existe un usuario con el correo " + request.getCorreo());
+        }
+
+        Rol rol = rolRepository.findById(request.getRolId())
+                .orElseThrow(() -> new ResourceNotFoundException("Rol no encontrado", request.getRolId()));
+
+        Usuario usuario = new Usuario();
+        usuario.setNombres(request.getNombres());
+        usuario.setApellidos(request.getApellidos());
+        usuario.setCorreo(request.getCorreo());
+        usuario.setPassword(request.getPassword());
+        usuario.setRol(rol);
+        usuario.setActivo(request.getActivo() != null && request.getActivo());
+
+        Usuario guardado = usuarioRepository.save(usuario);
+        log.info("Usuario {} creado", guardado.getId());
+        return toResponse(guardado);
     }
 
     @Override
-    public PedidoResponse actualizar(Long id, PedidoRequest request) {
-        return null;
+    public UsuarioResponse actualizar(Long id, UsuarioRequest request) {
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado", id));
+
+        Rol rol = rolRepository.findById(request.getRolId())
+                .orElseThrow(() -> new ResourceNotFoundException("Rol no encontrado", request.getRolId()));
+
+        usuario.setNombres(request.getNombres());
+        usuario.setApellidos(request.getApellidos());
+        usuario.setCorreo(request.getCorreo());
+        usuario.setPassword(request.getPassword());
+        usuario.setRol(rol);
+        usuario.setActivo(request.getActivo() != null && request.getActivo());
+
+        Usuario actualizado = usuarioRepository.save(usuario);
+        log.info("Usuario {} actualizado", actualizado.getId());
+        return toResponse(actualizado);
     }
 
     @Override
     public void eliminar(Long id) {
-
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado", id));
+        usuarioRepository.delete(usuario);
+        log.info("Usuario {} eliminado", id);
     }
 
     @Override
-    public PedidoResponse agregarPlato(Long pedidoId, AgregarPlatoRequest request) {
-        return null;
+    @Transactional(readOnly = true)
+    public UsuarioResponse obtenerPorCorreo(String correo) {
+        Usuario usuario = usuarioRepository.findByCorreo(correo)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con correo: " + correo));
+        return toResponse(usuario);
     }
 
-    @Override
-    public PedidoResponse actualizarCantidad(Long detalleId, Integer cantidad) {
-        return null;
-    }
-
-    @Override
-    public void eliminarPlato(Long detalleId) {
-
-    }
-
-    @Override
-    public PedidoResponse enviarACocina(Long pedidoId) {
-        return null;
-    }
-
-    @Override
-    public PedidoResponse marcarEnPreparacion(Long pedidoId) {
-        return null;
-    }
-
-    @Override
-    public PedidoResponse marcarListo(Long pedidoId) {
-        return null;
-    }
-
-    @Override
-    public PedidoResponse entregarPedido(Long pedidoId) {
-        return null;
-    }
-
-    @Override
-    public PedidoResponse cancelarPedido(Long pedidoId) {
-        return null;
-    }
-
-    @Override
-    public List<PedidoResponse> obtenerPedidosPendientes() {
-        return null;
-    }
-
-    @Override
-    public List<PedidoResponse> obtenerPedidosPorMesa(Long mesaId) {
-        return null;
-    }
-
-    @Override
-    public List<PedidoResponse> obtenerPedidosPorMesero(Long meseroId) {
-        return null;
+    private UsuarioResponse toResponse(Usuario usuario) {
+        UsuarioResponse response = new UsuarioResponse();
+        response.setId(usuario.getId());
+        response.setNombres(usuario.getNombres());
+        response.setApellidos(usuario.getApellidos());
+        response.setCorreo(usuario.getCorreo());
+        response.setActivo(usuario.getActivo());
+        if (usuario.getRol() != null) {
+            response.setRol(usuario.getRol().getNombre());
+        }
+        return response;
     }
 }

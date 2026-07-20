@@ -1,11 +1,19 @@
 package entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 
 @Entity
 @Table(name = "detalle_pedido")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class DetallePedido extends BaseEntity {
 
     @ManyToOne
