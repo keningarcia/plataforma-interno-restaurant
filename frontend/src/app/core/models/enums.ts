@@ -1,0 +1,30 @@
+export enum EstadoPedido {
+  PENDIENTE = 'PENDIENTE',
+  EN_PREPARACION = 'EN_PREPARACION',
+  LISTO = 'LISTO',
+  ENTREGADO = 'ENTREGADO',
+  PAGADO = 'PAGADO',
+  CANCELADO = 'CANCELADO'
+}
+
+export enum EstadoDetalle {
+  PENDIENTE = 'PENDIENTE',
+  EN_PREPARACION = 'EN_PREPARACION',
+  LISTO = 'LISTO',
+  ENTREGADO = 'ENTREGADO'
+}
+
+export enum EstadoMesa {
+  DISPONIBLE = 'DISPONIBLE',
+  OCUPADA = 'OCUPADA',
+  RESERVADA = 'RESERVADA',
+  LIMPIEZA = 'LIMPIEZA'
+}
+
+export enum MetodoPago {
+  EFECTIVO = 'EFECTIVO',
+  YAPE = 'YAPE',
+  PLIN = 'PLIN',
+  VISA = 'VISA',
+  MASTERCARD = 'MASTERCARD'
+}
