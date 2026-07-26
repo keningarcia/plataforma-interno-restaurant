@@ -24,8 +24,6 @@ public interface PedidoService {
 
     void eliminarPlato(Long detalleId);
 
-    PedidoResponse enviarACocina(Long pedidoId);
-
     PedidoResponse marcarEnPreparacion(Long pedidoId);
 
     PedidoResponse marcarListo(Long pedidoId);

@@ -8,6 +8,7 @@ import exception.BusinessException;
 import exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import mapper.MesaMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import repository.MesaRepository;
@@ -22,13 +23,14 @@ import java.util.List;
 public class MesaServiceImpl implements MesaService {
 
     private final MesaRepository mesaRepository;
+    private final MesaMapper mesaMapper;
 
     @Override
     @Transactional(readOnly = true)
     public List<MesaResponse> listar() {
         return mesaRepository.findAll()
                 .stream()
-                .map(this::toResponse)
+                .map(mesaMapper::toResponse)
                 .toList();
     }
 
@@ -37,7 +39,7 @@ public class MesaServiceImpl implements MesaService {
     public MesaResponse obtenerPorId(Long id) {
         Mesa mesa = mesaRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Mesa no encontrada", id));
-        return toResponse(mesa);
+        return mesaMapper.toResponse(mesa);
     }
 
     @Override
@@ -46,14 +48,11 @@ public class MesaServiceImpl implements MesaService {
             throw new BusinessException("Ya existe una mesa con el número " + request.getNumero());
         }
 
-        Mesa mesa = new Mesa();
-        mesa.setNumero(request.getNumero());
-        mesa.setCapacidad(request.getCapacidad());
-        mesa.setEstado(EstadoMesa.DISPONIBLE);
+        Mesa mesa = mesaMapper.toEntity(request);
 
         Mesa guardada = mesaRepository.save(mesa);
         log.info("Mesa {} creada", guardada.getId());
-        return toResponse(guardada);
+        return mesaMapper.toResponse(guardada);
     }
 
     @Override
@@ -66,7 +65,7 @@ public class MesaServiceImpl implements MesaService {
 
         Mesa actualizada = mesaRepository.save(mesa);
         log.info("Mesa {} actualizada", actualizada.getId());
-        return toResponse(actualizada);
+        return mesaMapper.toResponse(actualizada);
     }
 
     @Override
@@ -84,7 +83,7 @@ public class MesaServiceImpl implements MesaService {
         mesa.setEstado(estado);
         Mesa actualizada = mesaRepository.save(mesa);
         log.info("Mesa {} cambiada a estado {}", id, estado);
-        return toResponse(actualizada);
+        return mesaMapper.toResponse(actualizada);
     }
 
     @Override
@@ -92,16 +91,7 @@ public class MesaServiceImpl implements MesaService {
     public List<MesaResponse> obtenerPorEstado(EstadoMesa estado) {
         return mesaRepository.findByEstado(estado)
                 .stream()
-                .map(this::toResponse)
+                .map(mesaMapper::toResponse)
                 .toList();
-    }
-
-    private MesaResponse toResponse(Mesa mesa) {
-        MesaResponse response = new MesaResponse();
-        response.setId(mesa.getId());
-        response.setNumero(mesa.getNumero());
-        response.setCapacidad(mesa.getCapacidad());
-        response.setEstado(mesa.getEstado() != null ? mesa.getEstado().name() : null);
-        return response;
     }
 }

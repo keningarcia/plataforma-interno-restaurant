@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 @SpringBootApplication(scanBasePackages = {
 		"com.keningarcia.plantaforma_interno_restaurant",
+		"config",
 		"controller",
 		"dto",
 		"entity",

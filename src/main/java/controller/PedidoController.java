@@ -3,15 +3,19 @@ package controller;
 import dto.request.AgregarPlatoRequest;
 import dto.request.PedidoRequest;
 import dto.response.PedidoResponse;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import service.PedidoService;
 
 import java.util.List;
 
+@Validated
 @RestController
 @RequestMapping("/api/pedidos")
 @RequiredArgsConstructor
@@ -21,7 +25,7 @@ public class PedidoController {
     private final PedidoService pedidoService;
 
     @PostMapping
-    public ResponseEntity<PedidoResponse> crearPedido(@RequestBody PedidoRequest request) {
+    public ResponseEntity<PedidoResponse> crearPedido(@Valid @RequestBody PedidoRequest request) {
         log.info("Creando pedido para mesa {}", request.getMesaId());
         PedidoResponse response = pedidoService.crearPedido(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -38,7 +42,7 @@ public class PedidoController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<PedidoResponse> actualizar(@PathVariable Long id, @RequestBody PedidoRequest request) {
+    public ResponseEntity<PedidoResponse> actualizar(@PathVariable Long id, @Valid @RequestBody PedidoRequest request) {
         return ResponseEntity.ok(pedidoService.actualizar(id, request));
     }
 
@@ -49,12 +53,12 @@ public class PedidoController {
     }
 
     @PostMapping("/{pedidoId}/platos")
-    public ResponseEntity<PedidoResponse> agregarPlato(@PathVariable Long pedidoId, @RequestBody AgregarPlatoRequest request) {
+    public ResponseEntity<PedidoResponse> agregarPlato(@PathVariable Long pedidoId, @Valid @RequestBody AgregarPlatoRequest request) {
         return ResponseEntity.ok(pedidoService.agregarPlato(pedidoId, request));
     }
 
     @PatchMapping("/platos/{detalleId}/cantidad")
-    public ResponseEntity<PedidoResponse> actualizarCantidad(@PathVariable Long detalleId, @RequestParam Integer cantidad) {
+    public ResponseEntity<PedidoResponse> actualizarCantidad(@PathVariable Long detalleId, @RequestParam @Min(1) Integer cantidad) {
         return ResponseEntity.ok(pedidoService.actualizarCantidad(detalleId, cantidad));
     }
 
@@ -62,11 +66,6 @@ public class PedidoController {
     public ResponseEntity<Void> eliminarPlato(@PathVariable Long detalleId) {
         pedidoService.eliminarPlato(detalleId);
         return ResponseEntity.noContent().build();
-    }
-
-    @PatchMapping("/{pedidoId}/enviar-cocina")
-    public ResponseEntity<PedidoResponse> enviarACocina(@PathVariable Long pedidoId) {
-        return ResponseEntity.ok(pedidoService.enviarACocina(pedidoId));
     }
 
     @PatchMapping("/{pedidoId}/preparacion")

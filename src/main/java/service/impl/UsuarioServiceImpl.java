@@ -8,6 +8,8 @@ import exception.BusinessException;
 import exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import mapper.UsuarioMapper;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import repository.RolRepository;
@@ -24,13 +26,15 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
     private final RolRepository rolRepository;
+    private final UsuarioMapper usuarioMapper;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     @Transactional(readOnly = true)
     public List<UsuarioResponse> listar() {
         return usuarioRepository.findAll()
                 .stream()
-                .map(this::toResponse)
+                .map(usuarioMapper::toResponse)
                 .toList();
     }
 
@@ -39,7 +43,7 @@ public class UsuarioServiceImpl implements UsuarioService {
     public UsuarioResponse obtenerPorId(Long id) {
         Usuario usuario = usuarioRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado", id));
-        return toResponse(usuario);
+        return usuarioMapper.toResponse(usuario);
     }
 
     @Override
@@ -55,13 +59,13 @@ public class UsuarioServiceImpl implements UsuarioService {
         usuario.setNombres(request.getNombres());
         usuario.setApellidos(request.getApellidos());
         usuario.setCorreo(request.getCorreo());
-        usuario.setPassword(request.getPassword());
+        usuario.setPassword(passwordEncoder.encode(request.getPassword()));
         usuario.setRol(rol);
         usuario.setActivo(request.getActivo() != null && request.getActivo());
 
         Usuario guardado = usuarioRepository.save(usuario);
         log.info("Usuario {} creado", guardado.getId());
-        return toResponse(guardado);
+        return usuarioMapper.toResponse(guardado);
     }
 
     @Override
@@ -75,13 +79,17 @@ public class UsuarioServiceImpl implements UsuarioService {
         usuario.setNombres(request.getNombres());
         usuario.setApellidos(request.getApellidos());
         usuario.setCorreo(request.getCorreo());
-        usuario.setPassword(request.getPassword());
+
+        if (request.getPassword() != null && !request.getPassword().isBlank()) {
+            usuario.setPassword(passwordEncoder.encode(request.getPassword()));
+        }
+
         usuario.setRol(rol);
         usuario.setActivo(request.getActivo() != null && request.getActivo());
 
         Usuario actualizado = usuarioRepository.save(usuario);
         log.info("Usuario {} actualizado", actualizado.getId());
-        return toResponse(actualizado);
+        return usuarioMapper.toResponse(actualizado);
     }
 
     @Override
@@ -97,19 +105,6 @@ public class UsuarioServiceImpl implements UsuarioService {
     public UsuarioResponse obtenerPorCorreo(String correo) {
         Usuario usuario = usuarioRepository.findByCorreo(correo)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con correo: " + correo));
-        return toResponse(usuario);
-    }
-
-    private UsuarioResponse toResponse(Usuario usuario) {
-        UsuarioResponse response = new UsuarioResponse();
-        response.setId(usuario.getId());
-        response.setNombres(usuario.getNombres());
-        response.setApellidos(usuario.getApellidos());
-        response.setCorreo(usuario.getCorreo());
-        response.setActivo(usuario.getActivo());
-        if (usuario.getRol() != null) {
-            response.setRol(usuario.getRol().getNombre());
-        }
-        return response;
+        return usuarioMapper.toResponse(usuario);
     }
 }

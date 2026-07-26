@@ -66,7 +66,7 @@ public class PedidoServiceImpl implements PedidoService {
     }
 
     private List<DetallePedido> crearDetalles(PedidoRequest request, Pedido pedido) {
-        if (request.getDetalles() == null) return null;
+        if (request.getDetalles() == null) return List.of();
 
         return request.getDetalles().stream()
                 .map(detalleReq -> {
@@ -163,9 +163,7 @@ public class PedidoServiceImpl implements PedidoService {
                 .multiply(BigDecimal.valueOf(request.getCantidad())));
         detalle.setEstado(EstadoDetalle.PENDIENTE);
 
-        if (pedido.getDetalles() != null) {
-            pedido.getDetalles().add(detalle);
-        }
+        pedido.getDetalles().add(detalle);
 
         pedidoRepository.save(pedido);
         log.info("Plato {} agregado al pedido {}", plato.getNombre(), pedidoId);
@@ -202,18 +200,6 @@ public class PedidoServiceImpl implements PedidoService {
 
         detalleRepository.delete(detalle);
         log.info("Detalle {} eliminado del pedido", detalleId);
-    }
-
-    @Override
-    public PedidoResponse enviarACocina(Long pedidoId) {
-        Pedido pedido = pedidoRepository.findById(pedidoId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Pedido no encontrado"));
-
-        pedido.setEstado(EstadoPedido.EN_PREPARACION);
-        pedidoRepository.save(pedido);
-
-        return pedidoMapper.toResponse(pedido);
     }
 
     @Override

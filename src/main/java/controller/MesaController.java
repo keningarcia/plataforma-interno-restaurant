@@ -3,6 +3,7 @@ package controller;
 import dto.request.MesaRequest;
 import dto.response.MesaResponse;
 import entity.EstadoMesa;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -31,14 +32,14 @@ public class MesaController {
     }
 
     @PostMapping
-    public ResponseEntity<MesaResponse> crear(@RequestBody MesaRequest request) {
+    public ResponseEntity<MesaResponse> crear(@Valid @RequestBody MesaRequest request) {
         log.info("Creando mesa número {}", request.getNumero());
         MesaResponse response = mesaService.crear(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<MesaResponse> actualizar(@PathVariable Long id, @RequestBody MesaRequest request) {
+    public ResponseEntity<MesaResponse> actualizar(@PathVariable Long id, @Valid @RequestBody MesaRequest request) {
         return ResponseEntity.ok(mesaService.actualizar(id, request));
     }
 
